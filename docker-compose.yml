@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
     nginx:
@@ -12,6 +12,30 @@ services:
             - php-fpm
 
     php-fpm:
-        image: php:7.4-fpm
+        build:
+            ./php/php-fpm
         volumes:
             - ./src:/var/www
+            - ./php/php-fpm/php.ini:/usr/local/etc/php/php.ini
+    mysql:
+        image: mysql:latest
+        restart: always
+        volumes:
+            - mysql_data:/var/lib/mysql:Z
+        environment:
+            MYSQL_ROOT_PASSWORD: 123456
+            MYSQL_DATABASE: test
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        links:
+            - mysql:db
+        ports:
+            - 8765:80
+        environment:
+            MYSQL_ROOT_PASSWORD: 123456
+            MYSQL_DATABASE: test
+        depends_on:
+            - mysql
+volumes:
+    mysql_data:
+        name: mysql_data
